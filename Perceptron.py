@@ -2,43 +2,68 @@ import FileHandler
 from Iris import Iris
 list = FileHandler.open_file("files/iris-train.txt")
 test_data = FileHandler.open_file("files/iris-test.txt")
+import random
+class Perceptron:
 
-w0 = [0,0,0,0,0]
-nn = 0.01
+    def __init__(self, learning_rate):
+        self.weights = []
+        for i in range(4):
+            self.weights.append(random.uniform(-1,1))
+        self.threshold = random.uniform(-1,1)
+        self.learning_rate = learning_rate
 
+    def classification_func(self, iris):
+        weighted_sum = 0
+        predicted_result = 0
+        weighted_sum += iris.sepal_length * self.weights[0]
+        weighted_sum += iris.sepal_width * self.weights[1]
+        weighted_sum += iris.petal_length * self.weights[2]
+        weighted_sum += iris.petal_width * self.weights[3]
 
-
-def classification_func(data):
-    predict = (w0[0] * data.sepal_length +
-           w0[1] * data.sepal_width +
-           w0[2] * data.petal_length +
-           w0[3] * data.petal_width +
-           w0[4] * data.class_index)
-    return 1 if predict >= 0 else 0
-
-def modification(data, predicted, actual):
-    error = actual - predicted
-    w0[0] += w0[0] + error * nn * data.sepal_length
-    w0[1] += w0[1] + error * nn * data.sepal_width
-    w0[2] += w0[2] + error * nn * data.petal_length
-    w0[3] += w0[3] + error * nn * data.petal_width
-    w0[4] += w0[4] + error * nn * data.class_index
-
-def train_data():
-    for data in list:
-        predicted = classification_func(data)
-        modification(data, predicted, data.class_index)
-        print(data.class_index)
+        predicted_result += weighted_sum >= self.threshold
+        return predicted_result
 
 
-def test_data(test_data):
-    correct_predictions = 0
-    total_predictions = 0
-    for data in test_data:
-        predicted = classification_func(data)
-        if predicted == data.class_index:
-            correct_predictions += 1
-        total_predictions += 1
+    def modification(self, data, predicted):
+        iris_list = []
+        iris_list.append(data.sepal_length)
+        iris_list.append(data.sepal_width)
+        iris_list.append(data.petal_length)
+        iris_list.append(data.petal_width)
+        iris_list.append(data.class_index)
+        for i in range(4):
+            iris_list[i] *= self.learning_rate * (iris_list[4] - predicted)
+            self.weights[i] += iris_list[i]
+        self.threshold += (iris_list[4] - predicted) * self.learning_rate * (-1)
 
-    accuracy = correct_predictions / total_predictions * 100
-    print("Dokładność:", accuracy, "%")
+
+
+
+    def train_data(self, train_data):
+        for i in range(10):
+            for iris in train_data:
+                predicted_result = self.classification_func(iris)
+                self.modification(iris, predicted_result)
+
+
+    def test_data(self, test_data):
+        correct_predictions = 0
+        total_predictions = 0
+        for iris in test_data:
+            predicted_result = self.classification_func(iris)
+            if predicted_result == iris.class_index:
+                correct_predictions += 1
+            total_predictions += 1
+
+        accuracy = correct_predictions / total_predictions * 100
+        print("Dokładność:", accuracy, "%")
+
+    def test_one_entry(self, iris):
+        predicted_result = self.classification_func(iris)
+        match predicted_result:
+            case 1:
+                print("Predicted as: Iris-setosa")
+            case 0:
+                print("Predicted as: Iris-versicolor or Iris-virginica")
+
+
