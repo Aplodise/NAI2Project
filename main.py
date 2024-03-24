@@ -20,9 +20,9 @@ while True:
         case "1":
             try:
                 sepal_length = float(input("Enter sepal length: "))
-                sepal_width = float(input("Podaj szerokość działki kielicha: "))
-                petal_length = float(input("Podaj długość płatka: "))
-                petal_width = float(input("Podaj szerokość płatka: "))
+                sepal_width = float(input("Podaj sepal width: "))
+                petal_length = float(input("Podaj petal length: "))
+                petal_width = float(input("Podaj petal width: "))
                 class_index = input("Podaj nazwę irysu: ")
 
                 iris = Iris(sepal_length, sepal_width, petal_length, petal_width, class_index)
